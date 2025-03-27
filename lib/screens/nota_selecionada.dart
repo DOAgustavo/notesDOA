@@ -3,11 +3,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class NotaSelecionadaPage extends StatefulWidget {
   final String noteName; // Nome da nota
+  final String folderName; // Nome da pasta onde a nota está
 
   const NotaSelecionadaPage({
     super.key,
     required this.noteName,
-    required String folderName,
+    required this.folderName, required String noteContent, required Null Function(dynamic updatedContent) onSave,
   });
 
   @override
@@ -15,8 +16,7 @@ class NotaSelecionadaPage extends StatefulWidget {
 }
 
 class _NotaSelecionadaPageState extends State<NotaSelecionadaPage> {
-  final TextEditingController _textController =
-      TextEditingController(); // Controlador do campo de texto
+  final TextEditingController _textController = TextEditingController();
   String _noteContent = ''; // Conteúdo da nota
 
   @override
@@ -29,13 +29,12 @@ class _NotaSelecionadaPageState extends State<NotaSelecionadaPage> {
   Future<void> _loadNoteContent() async {
     final prefs = await SharedPreferences.getInstance();
     final String? savedContent = prefs.getString(
-      widget.noteName,
-    ); // Carrega o conteúdo salvo
+      '${widget.folderName}_${widget.noteName}', // Chave única para a nota
+    );
     if (savedContent != null) {
       setState(() {
         _noteContent = savedContent;
-        _textController.text =
-            savedContent; // Preenche o campo de texto com o conteúdo salvo
+        _textController.text = savedContent; // Preenche o campo de texto
       });
     }
   }
@@ -44,9 +43,12 @@ class _NotaSelecionadaPageState extends State<NotaSelecionadaPage> {
   Future<void> _saveNoteContent() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(
-      widget.noteName,
+      '${widget.folderName}_${widget.noteName}', // Chave única para a nota
       _textController.text,
-    ); // Salva o conteúdo
+    );
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Nota salva!')),
+    );
   }
 
   @override
@@ -57,12 +59,7 @@ class _NotaSelecionadaPageState extends State<NotaSelecionadaPage> {
         actions: [
           IconButton(
             icon: const Icon(Icons.save), // Ícone de salvar
-            onPressed: () {
-              _saveNoteContent(); // Salva o conteúdo da nota
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(const SnackBar(content: Text('Nota salva!')));
-            },
+            onPressed: _saveNoteContent, // Salva o conteúdo da nota
           ),
         ],
       ),
@@ -71,29 +68,19 @@ class _NotaSelecionadaPageState extends State<NotaSelecionadaPage> {
         child: TextField(
           controller: _textController,
           maxLines: null, // Permite múltiplas linhas
-          style: const TextStyle(
-            fontSize: 16.0,
-            color: Colors.white, // Define a cor do texto como branco
-          ),
+          style: const TextStyle(fontSize: 16.0),
           decoration: const InputDecoration(
-            hintText: null, // Remove o placeholder
-            border: InputBorder.none, // Remove a borda
-            fillColor: Color.fromARGB(
-              50,
-              0,
-              0,
-              0,
-            ), // Fundo levemente transparente
-            filled: true, // Ativa o fundo
+            hintText: 'Digite o conteúdo da nota aqui...',
+            border: OutlineInputBorder(),
           ),
-          keyboardType: TextInputType.multiline, // Permite múltiplas linhas
-          textInputAction:
-              TextInputAction.newline, // Quebra de linha ao pressionar Enter
           onChanged: (value) {
-            _noteContent =
-                value; // Atualiza o conteúdo da nota conforme o texto é digitado
+            _noteContent = value; // Atualiza o conteúdo da nota em tempo real
           },
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _saveNoteContent, // Salva o conteúdo ao pressionar o botão
+        child: const Icon(Icons.save),
       ),
     );
   }

@@ -13,7 +13,7 @@ class PastasSelecionadaPage extends StatefulWidget {
 }
 
 class _PastasSelecionadaPageState extends State<PastasSelecionadaPage> {
-  List<String> _notes = []; // Lista para armazenar os nomes das notas
+  Map<String, String> _notes = {}; // Mapa para armazenar notas e seus conteúdos
 
   @override
   void initState() {
@@ -24,14 +24,10 @@ class _PastasSelecionadaPageState extends State<PastasSelecionadaPage> {
   // Carrega as notas do armazenamento local
   Future<void> _loadNotes() async {
     final prefs = await SharedPreferences.getInstance();
-    final String? notesJson = prefs.getString(
-      widget.folderName,
-    ); // Carrega as notas da pasta
+    final String? notesJson = prefs.getString(widget.folderName);
     if (notesJson != null) {
       setState(() {
-        _notes = List<String>.from(
-          jsonDecode(notesJson),
-        ); // Decodifica as notas
+        _notes = Map<String, String>.from(jsonDecode(notesJson));
       });
     }
   }
@@ -39,18 +35,15 @@ class _PastasSelecionadaPageState extends State<PastasSelecionadaPage> {
   // Salva as notas no armazenamento local
   Future<void> _saveNotes() async {
     final prefs = await SharedPreferences.getInstance();
-    final String notesJson = jsonEncode(_notes); // Codifica as notas em JSON
-    await prefs.setString(
-      widget.folderName,
-      notesJson,
-    ); // Salva as notas da pasta
+    final String notesJson = jsonEncode(_notes);
+    await prefs.setString(widget.folderName, notesJson);
   }
 
   void _addNote(String noteName) {
     setState(() {
-      _notes.add(noteName); // Adiciona o nome da nova nota à lista
+      _notes[noteName] = ''; // Adiciona uma nova nota com conteúdo vazio
     });
-    _saveNotes(); // Salva as notas no armazenamento local
+    _saveNotes();
   }
 
   void _showAddNoteDialog() {
@@ -98,20 +91,26 @@ class _PastasSelecionadaPageState extends State<PastasSelecionadaPage> {
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: ListView.builder(
-          itemCount: _notes.length,
+          itemCount: _notes.keys.length,
           itemBuilder: (context, index) {
+            final noteName = _notes.keys.elementAt(index);
             return GestureDetector(
               onTap: () {
                 // Navega para a página NotaSelecionadaPage
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder:
-                        (context) => NotaSelecionadaPage(
-                          noteName: _notes[index], // Passa o nome da nota
-                          folderName:
-                              widget.folderName, // Passa o nome da pasta
-                        ),
+                    builder: (context) => NotaSelecionadaPage(
+                      noteName: noteName, // Passa o nome da nota
+                      folderName: widget.folderName, // Passa o nome da pasta
+                      noteContent: _notes[noteName] ?? '', // Passa o conteúdo
+                      onSave: (updatedContent) {
+                        setState(() {
+                          _notes[noteName] = updatedContent; // Atualiza o conteúdo
+                        });
+                        _saveNotes(); // Salva as alterações
+                      },
+                    ),
                   ),
                 );
               },
@@ -123,7 +122,7 @@ class _PastasSelecionadaPageState extends State<PastasSelecionadaPage> {
                   borderRadius: BorderRadius.circular(8.0),
                 ),
                 child: Text(
-                  _notes[index], // Nome da nota
+                  noteName, // Nome da nota
                   style: const TextStyle(fontSize: 16.0, color: Colors.white),
                 ),
               ),
