@@ -1,8 +1,7 @@
-import 'package:flutter/material.dart';
-import 'screens/todas_pastas.dart'; // Importa o arquivo com a classe DarkThemePage
-
+import'package:flutter/material.dart';
+import 'package:notesDOA/screens/todo_list_page.dart';
 void main() {
-  runApp(const MyApp());
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -10,11 +9,9 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // TODO: implement build
     return MaterialApp(
-      title: 'Dark Theme Page',
-      theme: ThemeData.dark(), // Define o tema escuro
-      debugShowCheckedModeBanner: false, // Remove o banner de debug
-      home: const DarkThemePage(), // Chama a página DarkThemePage
+      home: TodoListPage(),
     );
   }
 }
