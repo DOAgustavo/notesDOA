@@ -10,31 +10,29 @@ class TodoListPage extends StatelessWidget {
     return Scaffold(
       body: Center(
         child: Padding(
-          padding: const EdgeInsets.all(16), // Corrigido aqui
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
+          padding: const EdgeInsets.all(16.0),
+          child: Row(
             children: [
-              TextField(
-                 controller: emailController,
-                 decoration: InputDecoration(
-                 labelText: "email",
-                
-                 border: OutlineInputBorder(),
-               
+              Expanded(
+                child: TextField(
+                  decoration: InputDecoration(
+                    labelText: 'adicione uma tarefa',
+                    hintText: 'Ex.: Comprar leite',
+                   
+                    border: OutlineInputBorder(),
+                  ),
                 ),
               ),
-              ElevatedButton(onPressed: login, child: Text("entrar"))
+              SizedBox(width: 8),
+              ElevatedButton(
+                onPressed:() {},
+                child: Text('+'),
+              ),
             ],
           ),
         ),
       ),
     );
   }
-  void login(){
- String text = emailController.text;
- print(text);
- emailController.clear();
- 
-
-}
+  
 }
