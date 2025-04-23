@@ -1,9 +1,18 @@
 import 'package:flutter/material.dart';
 
-class TodoListPage extends StatelessWidget {
+class TodoListPage extends StatefulWidget {
    TodoListPage({super.key});
 
+  @override
+  State<TodoListPage> createState() => _TodoListPageState();
+}
+
+class _TodoListPageState extends State<TodoListPage> {
   final TextEditingController emailController = TextEditingController();
+
+  final TextEditingController todoController = TextEditingController();
+
+  List<String> todos = [];
 
   @override
   Widget build(BuildContext context) {
@@ -19,6 +28,7 @@ class TodoListPage extends StatelessWidget {
                 children: [
                   Expanded(
                     child: TextField(
+                      controller: todoController,
                       decoration: InputDecoration(
                         labelText: 'adicione uma tarefa',
                         hintText: 'Ex.: Comprar leite',
@@ -29,7 +39,15 @@ class TodoListPage extends StatelessWidget {
                   ),
                   SizedBox(width: 8),
                   ElevatedButton(
-                    onPressed:() {},
+                    onPressed:() {
+                     String text = todoController.text;
+                     
+                     setState(() {
+                       todos.add(text);
+                     });
+                     todoController.clear();
+
+                    },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.blue,
                       shape: RoundedRectangleBorder(
@@ -51,19 +69,22 @@ class TodoListPage extends StatelessWidget {
               ),
 
               SizedBox(height: 16),
-              ListView(
-                shrinkWrap: true,
-                children: [
-                 ListTile(
-                    title: Text('Tarefa 1'),
-                    subtitle: Text('Descrição da tarefa 1'),
-                    leading: Icon(Icons.check_circle, color: Colors.green),
-                    onTap: (){
-                      print('Tarefa 1 clicada');
-                    },
-                 ),
-                 
-                ],
+              Flexible(
+                child: ListView(
+                  shrinkWrap: true,
+                  children: [
+                    for(String todo in todos)
+                   ListTile(
+                      title: Text(todo),
+                      subtitle: Text('Descrição da tarefa 1'),
+                      leading: Icon(Icons.check_circle, color: Colors.green),
+                      onTap: (){
+                        print('Tarefa: $todo ');
+                      },
+                   ),
+                   
+                  ],
+                ),
               ),
               SizedBox(height: 16),
               Row(
@@ -103,5 +124,4 @@ class TodoListPage extends StatelessWidget {
       ),
     );
   }
-  
 }
